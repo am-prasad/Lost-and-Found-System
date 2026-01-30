@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { MapPin, Search, Plus } from 'lucide-react';
 import { useItems } from '@/context/ItemsContext';
+
 import RecentItemsList from '@/components/RecentItemsList';
 
 const Home = () => {
@@ -113,8 +114,8 @@ const Home = () => {
       <footer className="w-full bg-gray-100 py-6 mt-auto border-t">
         <div className="max-w-screen-lg mx-auto px-4 text-center text-sm text-muted-foreground">
           © {new Date().getFullYear()} CampoFound · Contact us at{' '}
-          <a href="mailto:sjcewe4@gmail.com" className="text-blue-600 hover:underline">
-            sjcewe4@gmail.com
+          <a href="mailto:amprasad18@gmail.com" className="text-blue-600 hover:underline">
+            amprasad18@gmail.com
           </a>
         </div>
       </footer>
