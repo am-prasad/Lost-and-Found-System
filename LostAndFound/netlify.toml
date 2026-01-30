@@ -1,8 +1,15 @@
+
 [build]
-  functions = "netlify/functions"
-  publish = "dist" # or "dist" if using Vue etc.
+  base = "LostAndFound"
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  # Points to the directory containing your backend code
+  directory = "backend"
 
 [[redirects]]
+  # Redirects frontend API calls to the serverless function
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/.netlify/functions/index/:splat"
   status = 200

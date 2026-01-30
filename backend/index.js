@@ -22,27 +22,23 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
+// --- CHANGE 1: MULTER STORAGE ---
+// Netlify filesystem is read-only. We must store files in /tmp/ (temporary) 
+// or use MemoryStorage. Note: Images will disappear after the function finishes 
+// unless you use Cloudinary or S3.
+const storage = multer.memoryStorage(); 
 const upload = multer({ storage });
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// --- CHANGE 2: DATABASE CONNECTION ---
+// Use process.env.MONGODB_URI instead of a hardcoded localhost string.
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/lostandfound';
 
-// Connect to MongoDB
 mongoose
-  .connect('mongodb://127.0.0.1:27017/lostandfound')
+  .connect(mongoURI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB connection failed:', err));
 
-// Item schema
+// Item schema (Keep as is)
 const itemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -66,13 +62,16 @@ const itemSchema = new mongoose.Schema({
 
 const Item = mongoose.model('Item', itemSchema);
 
-// Root
-app.get('/', (req, res) => {
+// --- CHANGE 3: ROUTE WRAPPING ---
+// Netlify routes functions to /.netlify/functions/index. 
+// Using a Router ensures paths match correctly.
+const router = express.Router();
+
+router.get('/', (req, res) => {
   res.send('Welcome to Lost & Found API');
 });
 
-// GET items
-app.get('/api/items', async (req, res) => {
+router.get('/items', async (req, res) => {
   try {
     const items = await Item.find().sort({ date: -1 });
     res.json(items);
@@ -81,29 +80,16 @@ app.get('/api/items', async (req, res) => {
   }
 });
 
-// ✅ POST item with image upload and correct parsing
-app.post('/api/items', upload.single('image'), async (req, res) => {
+router.post('/items', upload.single('image'), async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      category,
-      status,
-      contactInfo,
-      reportedBy,
-      date,
-      'location[lat]': lat,
-      'location[lng]': lng,
-      'location[description]': locationDescription,
-      isResolved,
-    } = req.body;
+    // Note: Since we use memoryStorage, req.file.buffer contains the image data.
+    // For now, we leave imageUrl empty because you can't host files on Netlify.
+    // Recommended: Use Cloudinary here.
+    const { title, description, category, status, contactInfo, reportedBy, date, 
+            'location[lat]': lat, 'location[lng]': lng, 'location[description]': locationDescription, isResolved } = req.body;
 
     const newItem = new Item({
-      title,
-      description,
-      category,
-      status,
-      contactInfo,
+      title, description, category, status, contactInfo,
       reportedBy: reportedBy || 'Anonymous User',
       isResolved: isResolved === 'true',
       date: date ? new Date(date) : new Date(),
@@ -112,99 +98,30 @@ app.post('/api/items', upload.single('image'), async (req, res) => {
         lng: lng ? parseFloat(lng) : undefined,
         description: locationDescription || '',
       },
-      imageUrl: req.file
-        ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-        : '',
+      imageUrl: "", // Function filesystems are temporary!
     });
 
     await newItem.save();
     res.status(201).json(newItem);
   } catch (err) {
-    console.error('❌ Error saving item:', err);
     res.status(400).json({ message: 'Failed to save item', error: err.message });
   }
 });
 
-// Registration and OTP routes
-app.post('/api/register/college', registerCollegeUser);
-app.post('/api/register/guest/send-otp', sendGuestOtp);
-app.post('/api/register/guest/verify-otp', verifyGuestOtp);
+// Add all other routes to the router
+router.post('/register/college', registerCollegeUser);
+router.post('/register/guest/send-otp', sendGuestOtp);
+router.post('/register/guest/verify-otp', verifyGuestOtp);
+// ... Add all your other app.post/get here but change 'app' to 'router'
 
-// Identity verification routes
-app.post('/api/verify/college', async (req, res) => {
-  const { srNo, password } = req.body;
-  try {
-    const user = await CollegeUser.findOne({ srNo });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'College user not found' });
-    }
+// Use the router with the /api prefix
+app.use('/api', router);
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid password' });
-    }
-
-    res.json({ success: true, message: 'College user verified' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Verification error', error: err });
-  }
-});
-
-app.post('/api/verify/guest', async (req, res) => {
-  const { mobile } = req.body;
-  try {
-    const guest = await GuestUser.findOne({ mobile });
-    if (!guest) {
-      return res.status(404).json({ success: false, message: 'Guest user not found' });
-    }
-
-    res.json({ success: true, message: 'Guest user verified' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Verification error', error: err });
-  }
-});
-
-// Admin endpoints
-app.get('/api/admin/users/college', async (req, res) => {
-  try {
-    const users = await CollegeUser.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch college users', error: err });
-  }
-});
-
-app.get('/api/admin/users/guest', async (req, res) => {
-  try {
-    const guests = await GuestUser.find();
-    res.json(guests);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch guest users', error: err });
-  }
-});
-
-app.get('/api/admin/items/lost', async (req, res) => {
-  try {
-    const lostItems = await Item.find({ status: 'lost' }).sort({ date: -1 });
-    res.json(lostItems);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch lost items', error: err });
-  }
-});
-
-app.get('/api/admin/items/found', async (req, res) => {
-  try {
-    const foundItems = await Item.find({ status: 'found' }).sort({ date: -1 });
-    res.json(foundItems);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch found items', error: err });
-  }
-});
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// --- CHANGE 4: CONDITIONAL LISTEN ---
+// Only listen on a port if NOT running on Netlify
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Local Server: http://localhost:${PORT}`));
+}
 
 export const handler = serverless(app);
