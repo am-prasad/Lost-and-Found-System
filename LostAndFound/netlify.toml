@@ -1,6 +1,6 @@
 [build]
   functions = "netlify/functions"
-  publish = "dev" # or "dist" if using Vue etc.
+  publish = "dist" # or "dist" if using Vue etc.
 
 [[redirects]]
   from = "/api/*"
