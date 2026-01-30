@@ -20,7 +20,7 @@ import MapSelector from '@/components/MapSelector';
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  description: z.string().min(5, "Description must be at least 10 characters"),
   category: z.enum(['electronics', 'clothing', 'accessories', 'documents', 'keys', 'other']),
   status: z.enum(['lost', 'found']),
   imageFile: z.any(),

@@ -11,12 +11,12 @@ const Home = () => {
   const [lostCount, setLostCount] = useState(0);
   const [foundCount, setFoundCount] = useState(0);
   const [recentItems, setRecentItems] = useState([]);
-  
+
   useEffect(() => {
     if (!loading) {
       setLostCount(items.filter(item => item.status === 'lost').length);
       setFoundCount(items.filter(item => item.status === 'found').length);
-      
+
       // Get 6 most recent items
       const recent = [...items]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -24,7 +24,7 @@ const Home = () => {
       setRecentItems(recent);
     }
   }, [items, loading]);
-  
+
   return (
     <div className="flex flex-col items-center justify-center text-center min-h-screen w-screen">
       <section className="flex flex-col items-center text-center mb-10 animate-fade-in">
@@ -32,7 +32,7 @@ const Home = () => {
         <p className="text-lg text-muted-foreground max-w-xl mb-8">
           A simple way to report lost items and find what you're looking for on campus.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <Button asChild className="flex-1" size="lg">
             <Link to="/report">
@@ -48,7 +48,7 @@ const Home = () => {
           </Button>
         </div>
       </section>
-      
+
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
         <Card className="card-hover bg-blue-50 border-blue-200">
           <CardHeader>
@@ -67,7 +67,7 @@ const Home = () => {
             </Link>
           </CardFooter>
         </Card>
-        
+
         <Card className="card-hover bg-green-50 border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center text-green-800 text-xl">
@@ -86,8 +86,8 @@ const Home = () => {
           </CardFooter>
         </Card>
       </section>
-      
-      <section className="mb-10">
+
+      <section className="mb-10 w-full max-w-5xl px-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Recently Reported</h2>
           <Link to="/browse" className="text-primary hover:underline flex items-center">
@@ -96,7 +96,7 @@ const Home = () => {
         </div>
         <RecentItemsList items={recentItems} loading={loading} />
       </section>
-      
+
       <section className="text-center mb-10">
         <h2 className="text-2xl font-bold mb-4">Check the Map</h2>
         <p className="text-muted-foreground mb-6">
@@ -108,6 +108,16 @@ const Home = () => {
           </Button>
         </Link>
       </section>
+
+      {/* Footer */}
+      <footer className="w-full bg-gray-100 py-6 mt-auto border-t">
+        <div className="max-w-screen-lg mx-auto px-4 text-center text-sm text-muted-foreground">
+          © {new Date().getFullYear()} CampoFound · Contact us at{' '}
+          <a href="mailto:sjcewe4@gmail.com" className="text-blue-600 hover:underline">
+            sjcewe4@gmail.com
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
