@@ -21,9 +21,14 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: ['https://lostnfoundsjce.netlify.app/', 'http://localhost:5173'],
+  origin: [
+    'https://lostnfoundsjce.netlify.app',
+    'http://localhost:5173'
+  ],
+  methods: ['GET','POST','PUT','DELETE'],
   credentials: true
 }));
+
 
 // --- MULTER SETUP ---
 // Memory storage is mandatory for Netlify as the filesystem is read-only
