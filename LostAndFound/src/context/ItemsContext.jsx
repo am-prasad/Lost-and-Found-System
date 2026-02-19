@@ -2,8 +2,8 @@
   import { toast } from 'sonner';
 
   const ItemsContext = createContext(undefined);
-  // const API_BASE_URL = 'http://localhost:5000/api/items'||'/api';'
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://lost-and-found-system-u8gh.onrender.com/api/items';
+
   export const useItems = () => {
     const context = useContext(ItemsContext);
     if (!context) {
