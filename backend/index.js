@@ -31,12 +31,10 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // --- DATABASE CONNECTION ---
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lostAndFound';
+const mongoURI = process.env.MONGODB_URI;
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(mongoURI)
+
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch((err) => console.error('Error connecting to MongoDB:', err));
 
