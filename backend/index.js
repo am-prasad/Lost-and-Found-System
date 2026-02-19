@@ -178,12 +178,12 @@ app.use('/api', router);
 // --- STARTUP LOGIC ---
 
 // Only listen locally if not in production (Netlify environment)
-if (process.env.NODE_ENV !== 'production') {
+
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`🚀 Local Server running at http://localhost:${PORT}`);
   });
-}
+
 
 // Export for Netlify Functions
 export const handler = serverless(app);
