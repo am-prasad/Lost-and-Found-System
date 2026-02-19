@@ -20,7 +20,10 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['https://lostnfoundsjce.netlify.app/', 'http://localhost:5173'],
+  credentials: true
+}));
 
 // --- MULTER SETUP ---
 // Memory storage is mandatory for Netlify as the filesystem is read-only
@@ -28,14 +31,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // --- DATABASE CONNECTION ---
-const mongoURI = process.env.MONGODB_URI;
-if (!mongoURI) {
-    console.error("ERROR: MONGODB_URI environment variable is missing!");
-}
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/lostAndFound';
 
-mongoose.connect(mongoURI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch((err) => console.error('❌ MongoDB connection failed:', err));
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch((err) => console.error('Error connecting to MongoDB:', err));
 
 const router = express.Router();
 
