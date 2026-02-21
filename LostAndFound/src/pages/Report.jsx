@@ -67,7 +67,7 @@ const Report = () => {
 
   const verifyCollegeUser = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/verify/college', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/verify/college`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ srNo: srNumber, password: srPassword }),
@@ -81,7 +81,7 @@ const Report = () => {
 
   const verifyGuestUser = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/verify/guest', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/verify/guest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: guestPhone }),
@@ -136,7 +136,7 @@ const Report = () => {
       formData.append('isResolved', 'false');
       formData.append('date', new Date().toISOString());
 
-      const res = await fetch('http://localhost:5000/api/items', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
         method: 'POST',
         body: formData
       });
