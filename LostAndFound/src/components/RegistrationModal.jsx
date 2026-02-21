@@ -135,7 +135,7 @@ const RegistrationModal = ({ isOpen, onClose }) => {
     };
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/register/college`, {
+      const res = await fetch(`${BACKEND_URL}/register/college`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submissionData),
