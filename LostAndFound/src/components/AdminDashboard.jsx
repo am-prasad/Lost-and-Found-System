@@ -18,9 +18,9 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [collegeRes, guestRes, itemsRes] = await Promise.all([
-        fetch(`${BACKEND_URL}/api/admin/users/college`),
-        fetch(`${BACKEND_URL}/api/admin/users/guest`),
-        fetch(`${BACKEND_URL}/api/items`)
+        fetch(`${BACKEND_URL}/admin/users/college`),
+        fetch(`${BACKEND_URL}/admin/users/guest`),
+        fetch(`${BACKEND_URL}/items`)
       ]);
 
       const [collegeData, guestData, itemsData] = await Promise.all([
