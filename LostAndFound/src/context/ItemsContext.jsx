@@ -2,7 +2,7 @@
   import { toast } from 'sonner';
 
   const ItemsContext = createContext(undefined);
-const API_BASE_URL = 'https://lost-and-found-system-u8gh.onrender.com/api/items';
+const API_BASE_URL =`${import.meta.env.VITE_API_URL}/items`;
 
   export const useItems = () => {
     const context = useContext(ItemsContext);
